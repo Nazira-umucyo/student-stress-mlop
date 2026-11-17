@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Environment variables (passwords, database URLs)
+.env
+
+# Local database
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db

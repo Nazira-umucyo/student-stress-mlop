@@ -1,0 +1,6 @@
+experiment,layers,dropout,l2,learning_rate,early_stopping,epochs_run,train_acc,val_acc,val_loss
+D_light_l2,"(32, 16)",0.3,0.0001,0.001,True,41,0.926,0.845,0.27
+C_smaller,"(32, 16)",0.2,0.001,0.001,True,42,0.925,0.872,0.302
+B_dropout_l2,"(64, 32)",0.3,0.001,0.001,True,34,0.934,0.865,0.319
+E_larger,"(128, 64)",0.4,0.001,0.0005,True,43,0.942,0.878,0.367
+A_baseline,"(64, 32)",0.0,0.0,0.001,False,100,1.0,0.858,0.918
