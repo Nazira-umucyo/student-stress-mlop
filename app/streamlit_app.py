@@ -1,5 +1,8 @@
 """Streamlit web UI for the Student Stress Level Prediction system."""
 import os
+import sys
+import threading
+import time
 from pathlib import Path
 
 import altair as alt
@@ -10,6 +13,7 @@ import streamlit as st
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
+sys.path.insert(0, str(BASE_DIR))  # so "api" and "src" can be imported
 COLORS = {"Low": "#4caf50", "Medium": "#ffb300", "High": "#e53935"}
 LABELS = {0: "Low", 1: "Medium", 2: "High"}
 
@@ -78,6 +82,25 @@ def show_error(response):
         st.error(f"Request failed ({response.status_code}).")
 
 
+@st.cache_resource(show_spinner="Starting the prediction API...")
+def ensure_api_running():
+    """If no API is running (e.g. on Streamlit Community Cloud, which runs a single
+    process), start the FastAPI server in a background thread inside this app."""
+    if api_get("/"):
+        return "external"
+    import uvicorn
+    from api.main import app as fastapi_app
+
+    server = uvicorn.Server(uvicorn.Config(
+        fastapi_app, host="127.0.0.1", port=8000, log_level="warning"))
+    threading.Thread(target=server.run, daemon=True).start()
+    for _ in range(90):
+        time.sleep(1)
+        if api_get("/"):
+            return "embedded"
+    return "failed"
+
+
 @st.cache_data
 def load_dataset():
     return pd.read_csv(DATA_DIR / "StressLevelDataset.csv")
@@ -98,6 +121,8 @@ def fill_example():
         for f in FEATURES:
             st.session_state[f] = int(row[f])
 
+
+ensure_api_running()
 
 # ---------- sidebar: model status ----------
 with st.sidebar:
